@@ -30,3 +30,19 @@
 *.exe
 *.out
 *.app
+
+# CMake build
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/Makefile
+/*.sln
+/*.vcxproj
+
+# Binary output
+/**/*.exe
+/**/*.dll
+
+# Optional:
+*.user
+*.vcxproj.*
