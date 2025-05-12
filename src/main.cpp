@@ -4,12 +4,36 @@
 
 #include <Windows.h>
 
+#include <NuiApi.h>
+
 #include <iostream>
 
 #define WIN_WIDTH 640
 #define WIN_HEIGHT 480
 
+HANDLE depthStream;
+HANDLE rgbStream;
 bool g_bRunning = true;
+
+void initKinect() {
+    if (FAILED(NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH |
+                             NUI_INITIALIZE_FLAG_USES_COLOR))) {
+        throw std::runtime_error("Failed to initialize Kinect");
+        exit(EXIT_FAILURE);
+    }
+
+    if (FAILED(NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,
+                                  NUI_IMAGE_RESOLUTION_640x480, 0, 2, NULL,
+                                  &depthStream))) {
+        throw std::runtime_error("Failed to open depth stream");
+    }
+
+    if (FAILED(NuiImageStreamOpen(NUI_IMAGE_TYPE_COLOR,
+                                  NUI_IMAGE_RESOLUTION_640x480, 0, 2, NULL,
+                                  &rgbStream))) {
+        throw std::runtime_error("Failed to open color stream");
+    }
+}
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                             LPARAM lParam) {
@@ -64,6 +88,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     UpdateWindow(hwnd);
 
     try {
+        initKinect();
+
         MSG msg = {};
 
         while (g_bRunning) {
@@ -79,6 +105,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 DispatchMessage(&msg);
             }
         }
+
+        NuiShutdown();
     } catch (const std::exception &e) {
         std::wstring ws(e.what(), e.what() + strlen(e.what()));
         MessageBox(hwnd, ws.c_str(), L"Error", MB_OK | MB_ICONERROR);
