@@ -104,6 +104,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
+
+            Sleep(16);
         }
 
         NuiShutdown();
